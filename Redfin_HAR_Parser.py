@@ -142,7 +142,9 @@ time.sleep(5)
 
 df = pd.read_csv(file_path_csv_final)
 
-# drop rows where the 'column_name' value is equal to 'some_value'
+# drop rows where the Data Source ID value is equal to '13'. dataSourceId=13 means the property source is Public Record
+# and Public Record source data is considered as Outlier. So, those property needs to be removed from the list
+
 df = df.drop(df[df['Data Source ID'] == 13].index)
 
 # Save the result to a new CSV file
