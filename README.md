@@ -9,9 +9,3 @@ FIRST_PAGE_URL = "https://www.redfin.com/county/1825/NE/Lancaster-County/filter/
 **REQUIREMENTS**
 - Python 3.7
 - lxml (pip install lxml)
-- selenium (pip install selenium)
-- Chrome web browser, keep updated to the last version
-- chromedriver.exe placed on C:\ downloaded from http://chromedriver.chromium.org/downloads 
-
-
-
