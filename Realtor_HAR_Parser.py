@@ -50,3 +50,50 @@ file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folde
 
 with open(file_path_raw, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
+
+
+# Now the first converted json file will be parsed and grouped based upon the filter  "https://www.realtor.com/api/v1/hulk_main_srp?"
+# Also, make a second json file which will contain only the response block that contains the actual home data we need
+# Add a 5-second delay in case the first json creation time is high
+
+time.sleep(8)
+
+with open(file_path_raw, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+matching_responses = []
+
+for entry in data['entries']:
+    request_url = entry['request']['url']
+    if "https://www.realtor.com/api/v1/hulk_main_srp?" in request_url:
+        matching_responses.append(entry['response'])
+
+output_data = {'responses': matching_responses}
+
+# Write the JSON output to a file, change the file name accordingly
+
+with open(file_path_grouped, 'w') as f:
+    json.dump(output_data, f, ensure_ascii=False, indent=4)\
+
+time.sleep(8)
+
+# Below code block will now take the latest json file and sanitize as your desired data is inside a block
+# and formatting is bad to parse
+
+# Open the JSON file and read its contents
+
+with open(file_path_grouped, 'r', encoding='iso-8859-1') as f:
+    json_data = json.load(f)
+
+# Parse the JSON data
+# parsed_data = json.loads(json_data)
+
+# Access the parsed data and sanitize the backslash and unnecessary
+matching_responses = []
+for entry in json_data['responses']:
+    json_parsed = entry['content']['text'].replace('{}&&', '')
+    matching_responses.append(json.loads(json_parsed))
+
+# Write the JSON output to a file, change the file name accordingly
+with open(file_path_sanitized, "w") as file:
+    json.dump(matching_responses, file)

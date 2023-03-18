@@ -52,9 +52,9 @@ with open(file_path_raw, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
 
 
-# Now the first converted json file is parsed and grouped based upon the filter  "https://www.redfin.com/stingray/api/gis?"
-# Also, make a second json file which will contain only the response block that contains the actual home data we need
-# Add a 5-second delay in case the first json creation time is high
+# Now the first converted json file will be parsed and grouped based upon the filter  "https://www.redfin.com/stingray/api/gis?"
+# Also, will make a second json file which will contain only the response block that contains the actual home data we need
+# Adding a 5-second delay in case the first json creation time is high
 
 time.sleep(8)
 
