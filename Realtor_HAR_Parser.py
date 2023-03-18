@@ -42,11 +42,11 @@ json_data = har_parser.har_data
 # Write the JSON output to a file, change the file name accordingly
 
 file_path_raw = os.path.join(folder_path, folder_name + "_Raw.json")
-file_path_grouped = os.path.join(folder_path, folder_name + "_Redfin_Grouped.json")
-file_path_sanitized = os.path.join(folder_path, folder_name + "_Redfin_Grouped_Sanitized.json")
-file_path_csv = os.path.join(folder_path, folder_name + "_Redfin_Output.csv")
-file_path_csv_final = os.path.join(folder_path, folder_name + "_Redfin_Output_Final_All_Property.csv")
-file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Redfin_Sold_Comps_PublicRecord_Removed.csv")
+file_path_grouped = os.path.join(folder_path, folder_name + "_Realtor_Grouped.json")
+file_path_sanitized = os.path.join(folder_path, folder_name + "_Realtor_Grouped_Sanitized.json")
+file_path_csv = os.path.join(folder_path, folder_name + "_Realtor_Output.csv")
+file_path_csv_final = os.path.join(folder_path, folder_name + "_Realtor_Output_Final_All_Property.csv")
+file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Realtor_Sold_Comps_PublicRecord_Removed.csv")
 
 with open(file_path_raw, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
@@ -97,3 +97,58 @@ for entry in json_data['responses']:
 # Write the JSON output to a file, change the file name accordingly
 with open(file_path_sanitized, "w") as file:
     json.dump(matching_responses, file)
+
+# ##########
+
+# Add a 5-second delay
+time.sleep(5)
+
+with open(file_path_sanitized, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+# Extract all prices from the latest json
+
+with open(file_path_csv, 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    # write header row
+    writer.writerow(['Sale Price', 'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Acreage', 'Sale Date', 'Latitude', 'Longitude'])
+    for obj in data:
+        homes = obj['data']['home_search']['results']
+        for home in homes:
+            price = home.get('list_price', '')
+            zip_code = home.get('location').get('address').get('postal_code', '')
+            dataSource_Id = home.get('source').get('id', '')
+            property_id = home.get('property_id', '')
+            url = home.get('permalink', '')
+            #listingRemarks = home.get('listingRemarks', '')
+            lotSize = home.get('description').get('lot_sqft', '')
+            lastSaleDate = home.get('description').get('sold_date', '')
+            latitude = home.get('location').get('address').get('coordinate').get('lat', '')
+            longitude = home.get('location').get('address').get('coordinate').get('lon', '')
+            lot_size_acres = lotSize / 43560 if lotSize else ""
+            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres)
+            writer.writerow([price, zip_code, dataSource_Id, property_id, "https://www.realtor.com/realestateandhomes-detail/"+url, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
+
+
+time.sleep(5)
+# Load the CSV file
+df = pd.read_csv(file_path_csv)
+
+# Remove duplicates based on the 'propertyId' column
+df.drop_duplicates(subset=['URL'], keep='first', inplace=True)
+
+# Save the result to a new CSV file
+df.to_csv(file_path_csv_final, index=False)
+
+# time.sleep(5)
+# # drop rows based on a column value
+#
+# df = pd.read_csv(file_path_csv_final)
+#
+# # drop rows where the Data Source ID value is equal to '13'. dataSourceId=13 means the property source is from Public Record
+# # and Public Record source data is considered as Outlier. So, those properties need to be removed from the csv
+#
+# df = df.drop(df[df['Data Source ID'] == 13].index)
+#
+# # Save the result to a new CSV file
+# df.to_csv(file_path_csv_final_with_public_record_removed, index=False)
