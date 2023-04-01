@@ -111,13 +111,18 @@ with open(file_path_sanitized, 'r', encoding='utf-8') as f:
 with open(file_path_csv, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     # write header row
-    writer.writerow(['Sale Price', 'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Acreage', 'Sale Date', 'Latitude', 'Longitude'])
+    writer.writerow(['Sold Price', 'County',  'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Acreage', 'Sold Date', 'Latitude', 'Longitude'])
     for obj in data:
         homes = obj['data']['home_search']['results']
         for home in homes:
-            price = home.get('list_price', '')
+            price = home.get('description').get('sold_price', '')
             zip_code = home.get('location').get('address').get('postal_code', '')
-            dataSource_Id = home.get('source').get('id', '')
+            county = home.get('location').get('county').get('name', '')
+            data_source = home.get('source')
+            if data_source is not None:
+                dataSource_Id = data_source.get('id', '')
+            else:
+                dataSource_Id = ''
             property_id = home.get('property_id', '')
             url = home.get('permalink', '')
             #listingRemarks = home.get('listingRemarks', '')
@@ -127,7 +132,7 @@ with open(file_path_csv, 'w', newline='') as csvfile:
             longitude = home.get('location').get('address').get('coordinate').get('lon', '')
             lot_size_acres = lotSize / 43560 if lotSize else ""
             lot_size_acres_formatted = "{:.2f}".format(lot_size_acres)
-            writer.writerow([price, zip_code, dataSource_Id, property_id, "https://www.realtor.com/realestateandhomes-detail/"+url, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
+            writer.writerow([price, county, zip_code, dataSource_Id, property_id, "https://www.realtor.com/realestateandhomes-detail/"+url, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
 
 
 time.sleep(5)
