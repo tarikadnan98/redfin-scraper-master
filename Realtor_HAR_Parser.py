@@ -113,7 +113,11 @@ with open(file_path_csv, 'w', newline='') as csvfile:
     # write header row
     writer.writerow(['Sold Price', 'County',  'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Acreage', 'Sold Date', 'Latitude', 'Longitude'])
     for obj in data:
-        homes = obj['data']['home_search']['results']
+        try:
+            homes = obj['data']['home_search']['results']
+        except KeyError:
+            # Skip this object and continue with the next one
+            continue
         for home in homes:
             price = home.get('description').get('sold_price', '')
             zip_code = home.get('location').get('address').get('postal_code', '')
@@ -125,7 +129,6 @@ with open(file_path_csv, 'w', newline='') as csvfile:
                 dataSource_Id = ''
             property_id = home.get('property_id', '')
             url = home.get('permalink', '')
-            #listingRemarks = home.get('listingRemarks', '')
             lotSize = home.get('description').get('lot_sqft', '')
             lastSaleDate = home.get('description').get('sold_date', '')
             latitude = home.get('location').get('address').get('coordinate').get('lat', '')
