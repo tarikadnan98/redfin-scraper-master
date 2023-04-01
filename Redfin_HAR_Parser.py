@@ -111,7 +111,11 @@ with open(file_path_csv, 'w', newline='') as csvfile:
     # write header row
     writer.writerow(['Sale Price', 'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Descriptions', 'Acreage', 'Sale Date', 'Latitude', 'Longitude'])
     for obj in data:
-        homes = obj['payload']['homes']
+        try:
+            homes = obj['payload']['homes']
+        except KeyError:
+            # Skip this object and continue with the next one
+            continue
         for home in homes:
             price = home.get('price', '').get('value', '')
             zip_code = home.get('zip', '')
