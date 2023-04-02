@@ -77,18 +77,14 @@ with open(file_path_grouped, 'w') as f:
 
 time.sleep(8)
 
-# Below code block will now take the latest json file and sanitize as your desired data is inside a block
-# and formatting is bad to parse
+# Below code block will now take the latest json file and sanitize
 
 # Open the JSON file and read its contents
 
 with open(file_path_grouped, 'r', encoding='utf-8') as f:
     json_data = json.load(f)
 
-# Parse the JSON data
-# parsed_data = json.loads(json_data)
-
-# Access the parsed data and sanitize the backslash and unnecessary
+# Access the parsed data and sanitize the backslash and unnecessary characters
 matching_responses = []
 for entry in json_data['responses']:
     json_parsed = entry['content']['text'].replace('{}&&', '')
@@ -104,7 +100,7 @@ time.sleep(5)
 with open(file_path_sanitized, 'r', encoding='utf-8') as f:
     data = json.load(f)
 
-# Extract all prices from the latest json
+# Extract all the necessary values from the latest json
 
 with open(file_path_csv, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
