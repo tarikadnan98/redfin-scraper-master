@@ -132,7 +132,7 @@ time.sleep(5)
 # Load the CSV file
 df = pd.read_csv(file_path_csv)
 
-# Remove duplicates based on the 'propertyId' column
+# Remove duplicates based on the 'URL' column
 df.drop_duplicates(subset=['URL'], keep='first', inplace=True)
 
 # Save the result to a new CSV file
