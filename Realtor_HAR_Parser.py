@@ -130,7 +130,7 @@ with open(file_path_csv, 'w', newline='') as csvfile:
             latitude = home.get('location').get('address').get('coordinate').get('lat', '')
             longitude = home.get('location').get('address').get('coordinate').get('lon', '')
             lot_size_acres = lotSize / 43560 if lotSize else ""
-            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres)
+            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else ""
             writer.writerow([price, county, zip_code, dataSource_Id, property_id, "https://www.realtor.com/realestateandhomes-detail/"+url, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
 
 

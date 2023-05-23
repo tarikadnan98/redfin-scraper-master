@@ -124,7 +124,7 @@ with open(file_path_csv, 'w', newline='') as csvfile:
             latitude = home.get('latLong').get('value').get('latitude', '')
             longitude = home.get('latLong').get('value').get('longitude', '')
             lot_size_acres = lotSize / 43560 if lotSize else ""
-            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres)
+            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else ""
             writer.writerow([price, zip_code, dataSource_Id, property_id, "https://www.redfin.com"+url, listingRemarks, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
 
 
