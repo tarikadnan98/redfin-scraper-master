@@ -72,7 +72,7 @@ output_data = {'responses': matching_responses}
 
 # Write the JSON output to a file, change the file name accordingly
 
-with open(file_path_grouped, 'w') as f:
+with open(file_path_grouped, 'w', encoding='utf-8') as f:
     json.dump(output_data, f, ensure_ascii=False, indent=4)\
 
 time.sleep(8)
@@ -91,7 +91,7 @@ for entry in json_data['responses']:
     matching_responses.append(json.loads(json_parsed))
 
 # Write the JSON output to a file, change the file name accordingly
-with open(file_path_sanitized, "w") as file:
+with open(file_path_sanitized, "w", encoding='utf-8') as file:
     json.dump(matching_responses, file)
 
 # ##########
@@ -104,7 +104,7 @@ with open(file_path_sanitized, 'r', encoding='utf-8') as f:
 
 # Extract all the necessary values from the latest json
 
-with open(file_path_csv, 'w', newline='') as csvfile:
+with open(file_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     # write header row
     writer.writerow(['Sold Price', 'County',  'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Acreage', 'Sold Date', 'Latitude', 'Longitude'])
