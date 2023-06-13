@@ -46,7 +46,7 @@ file_path_grouped = os.path.join(folder_path, folder_name + "_Redfin_Grouped.jso
 file_path_sanitized = os.path.join(folder_path, folder_name + "_Redfin_Grouped_Sanitized.json")
 file_path_csv = os.path.join(folder_path, folder_name + "_Redfin_Output.csv")
 file_path_csv_final = os.path.join(folder_path, folder_name + "_Redfin_Output_Final_All_Property.csv")
-file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Redfin_Sold_Comps_PublicRecord_Removed.csv")
+file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Redfin_For_Sale_Comps_PublicRecord_Removed.csv")
 
 with open(file_path_raw, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
@@ -105,7 +105,7 @@ with open(file_path_sanitized, 'r', encoding='utf-8') as f:
 with open(file_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     # write header row
-    writer.writerow(['Sale Price', 'Zip Code', 'Data Source ID', 'Property ID', 'URL', 'Descriptions', 'Acreage', 'Sale Date', 'Latitude', 'Longitude'])
+    writer.writerow(['Sale Type', 'Sold Date', 'Zip Code', 'Price', 'Acres', '$/Acre', 'URL', 'Data Source ID'])
     for obj in data:
         try:
             homes = obj['payload']['homes']
@@ -115,18 +115,18 @@ with open(file_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
         for home in homes:
             price = home.get('price', '').get('value', '')
             zip_code = home.get('zip', '')
-            dataSource_Id = home.get('dataSourceId', '')
-            property_id = home.get('propertyId', '')
+            mls_Status = home.get('mlsStatus', '')
             url = home.get('url', '')
+            dataSource_Id = home.get('dataSourceId', '')
             listingRemarks = home.get('listingRemarks', '')
             lotSize = home.get('lotSize').get('value', '')
             sashes = home.get('sashes', [])
             lastSaleDate = home.get('sashes')[0].get('lastSaleDate', '') if sashes else ''
-            latitude = home.get('latLong').get('value').get('latitude', '')
-            longitude = home.get('latLong').get('value').get('longitude', '')
             lot_size_acres = lotSize / 43560 if lotSize else ""
-            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else ""
-            writer.writerow([price, zip_code, dataSource_Id, property_id, "https://www.redfin.com"+url, listingRemarks, lot_size_acres_formatted, lastSaleDate, latitude, longitude])
+            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else '0.00'
+            price_per_acres = float(price) / float(lot_size_acres_formatted) if price and lot_size_acres_formatted else 0.0
+            price_per_acres_formatted = "{:.2f}".format(price_per_acres)
+            writer.writerow([mls_Status, lastSaleDate, zip_code, price, lot_size_acres_formatted, price_per_acres_formatted, "https://www.redfin.com"+url, dataSource_Id])
 
 
 time.sleep(5)
