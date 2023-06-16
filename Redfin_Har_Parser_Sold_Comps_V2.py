@@ -6,6 +6,13 @@ import csv
 import time
 from haralyzer import HarParser
 import pandas as pd
+import locale
+
+# Set the locale for formatting
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+# Set the currency symbol to $
+locale.setlocale(locale.LC_MONETARY, 'en_US.UTF-8')
 
 
 # Prompt the user to select a folder location
@@ -126,7 +133,13 @@ with open(file_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
             lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else '0.00'
             price_per_acres = float(price) / float(lot_size_acres_formatted) if price and lot_size_acres_formatted else 0.0
             price_per_acres_formatted = "{:.2f}".format(price_per_acres)
-            writer.writerow([mls_Status, lastSaleDate, zip_code, price, lot_size_acres_formatted, price_per_acres_formatted, "https://www.redfin.com"+url, dataSource_Id])
+            # Format price as currency with $
+            price_formatted = locale.currency(price, symbol=True, grouping=True)
+
+            # Format price_per_acres_formatted as currency with $
+            price_per_acres_formatted = locale.currency(price_per_acres, symbol=True, grouping=True)
+
+            writer.writerow([mls_Status, lastSaleDate, zip_code, price_formatted, lot_size_acres_formatted, price_per_acres_formatted, "https://www.redfin.com"+url, dataSource_Id])
 
 
 time.sleep(5)
