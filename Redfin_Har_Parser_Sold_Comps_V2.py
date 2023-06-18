@@ -53,7 +53,7 @@ file_path_grouped = os.path.join(folder_path, folder_name + "_Redfin_Grouped.jso
 file_path_sanitized = os.path.join(folder_path, folder_name + "_Redfin_Grouped_Sanitized.json")
 file_path_csv = os.path.join(folder_path, folder_name + "_Redfin_Output.csv")
 file_path_csv_final = os.path.join(folder_path, folder_name + "_Redfin_Output_Final_All_Property.csv")
-file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Redfin_Sold_Comps_PublicRecord_Removed.csv")
+file_path_csv_final_with_public_record_removed = os.path.join(folder_path, folder_name + "_Redfin_Comps_PublicRecord_Removed.csv")
 
 with open(file_path_raw, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
@@ -63,7 +63,7 @@ with open(file_path_raw, 'w', encoding='utf-8') as f:
 # Also, will make a second json file which will contain only the response block that contains the actual home data we need
 # Adding a 5-second delay in case the first json creation time is high
 
-time.sleep(8)
+time.sleep(1)
 
 with open(file_path_raw, 'r', encoding='utf-8') as f:
     data = json.load(f)
@@ -82,7 +82,7 @@ output_data = {'responses': matching_responses}
 with open(file_path_grouped, 'w', encoding='utf-8') as f:
     json.dump(output_data, f, ensure_ascii=False, indent=4)
 
-time.sleep(8)
+time.sleep(1)
 
 # Below code block will now take the latest json file and sanitize
 
@@ -102,7 +102,7 @@ with open(file_path_sanitized, "w") as file:
     json.dump(matching_responses, file)
 
 # Add a 5-second delay
-time.sleep(5)
+time.sleep(1)
 
 with open(file_path_sanitized, 'r', encoding='utf-8') as f:
     data = json.load(f)
@@ -129,20 +129,27 @@ with open(file_path_csv, 'w', newline='', encoding='utf-8') as csvfile:
             lotSize = home.get('lotSize').get('value', '')
             sashes = home.get('sashes', [])
             lastSaleDate = home.get('sashes')[0].get('lastSaleDate', '') if sashes else ''
-            lot_size_acres = lotSize / 43560 if lotSize else ""
-            lot_size_acres_formatted = "{:.2f}".format(lot_size_acres) if isinstance(lot_size_acres, float) else '0.00'
-            price_per_acres = float(price) / float(lot_size_acres_formatted) if price and lot_size_acres_formatted else 0.0
-            price_per_acres_formatted = "{:.2f}".format(price_per_acres)
-            # Format price as currency with $
-            price_formatted = locale.currency(price, symbol=True, grouping=True)
+            # Check if price and lotSize are non-empty strings
+            if price and lotSize:
+                price = float(price)
+                lot_size_acres = float(lotSize) / 43560
+                lot_size_acres_formatted = "{:.2f}".format(lot_size_acres)
+                price_per_acres = price / lot_size_acres
+                price_per_acres_formatted = "{:.2f}".format(price_per_acres)
 
-            # Format price_per_acres_formatted as currency with $
-            price_per_acres_formatted = locale.currency(price_per_acres, symbol=True, grouping=True)
+                # Format price as currency with $
+                price_formatted = locale.currency(price, symbol=True, grouping=True)
 
-            writer.writerow([mls_Status, lastSaleDate, zip_code, price_formatted, lot_size_acres_formatted, price_per_acres_formatted, "https://www.redfin.com"+url, dataSource_Id])
+                # Format price_per_acres_formatted as currency with $
+                price_per_acres_formatted = locale.currency(price_per_acres, symbol=True, grouping=True)
 
+                writer.writerow([mls_Status, lastSaleDate, zip_code, price_formatted, lot_size_acres_formatted,
+                                 price_per_acres_formatted, "https://www.redfin.com" + url, dataSource_Id])
+            else:
+                writer.writerow(
+                    [mls_Status, lastSaleDate, zip_code, '', lot_size_acres_formatted, '', "https://www.redfin.com" + url, dataSource_Id])
 
-time.sleep(5)
+time.sleep(1)
 # Load the CSV file
 df = pd.read_csv(file_path_csv)
 
@@ -152,7 +159,7 @@ df.drop_duplicates(subset=['URL'], keep='first', inplace=True)
 # Save the result to a new CSV file
 df.to_csv(file_path_csv_final, index=False)
 
-time.sleep(5)
+time.sleep(1)
 # drop rows based on a column value
 
 df = pd.read_csv(file_path_csv_final)
